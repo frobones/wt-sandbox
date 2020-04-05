@@ -4,12 +4,15 @@
 #include <Wt/Dbo/Dbo.h>
 #include <Wt/Dbo/backend/Sqlite3.h>
 
+#include "unit.hpp"
+
 namespace dbo = Wt::Dbo;
 
-class database {
+class Database {
 public:
-    database();
-    void run();
+    Database();
+    void Init();
+    dbo::ptr<Unit> GetUnit();
 
 private:
     dbo::Session session;

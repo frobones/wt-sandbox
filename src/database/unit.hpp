@@ -20,6 +20,15 @@ public:
     Job job_2_;
     Job job_3_;
 
+    const char* GetName();
+    const char* GetFaction();
+    const char* GetRarity();
+    const char* GetElement();
+    const char* GetJob1();
+    const char* GetJob2();
+    const char* GetJob3();
+    const char* GetImageUri();
+
     std::string image_uri;
 
     template<class Action>
@@ -34,6 +43,9 @@ public:
         dbo::field(a, job_3_, "job_3");
         dbo::field(a, image_uri, "image");
     }
+
+private:
+    const char* GetJob(Job job);
 };
 
 

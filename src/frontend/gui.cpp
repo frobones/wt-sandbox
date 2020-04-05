@@ -4,7 +4,14 @@
  * See the LICENSE file for terms of use.
  */
 
+#include <Wt/WAnimation.h>
+#include <Wt/WPanel.h>
+#include <Wt/WText.h>
+
+#include "database/dbo.hpp"
+#include "database/unit.hpp"
 #include "gui.hpp"
+#include "helper.hpp"
 
 /*
  * The env argument contains information about the new session, and
@@ -13,45 +20,12 @@
  * application constructor.
 */
 HelloApplication::HelloApplication(const Wt::WEnvironment& env) : WApplication(env) {
-    setTitle("Hello world");                            // application title
+    Database db;
+    db.Init();
 
-    root()->addWidget(Wt::cpp14::make_unique<Wt::WText>("Your name, please ? ")); // show some text
+    dbo::ptr<Unit> unit = db.GetUnit();
 
-    nameEdit_ = root()->addWidget(Wt::cpp14::make_unique<Wt::WLineEdit>()); // allow text input
-    nameEdit_->setFocus();                              // give focus
+    useStyleSheet(Wt::WLink("https://www.w3schools.com/w3css/4/w3.css"));
 
-    auto button = root()->addWidget(Wt::cpp14::make_unique<Wt::WPushButton>("Greet me."));
-    // create a button
-    button->setMargin(5, Wt::Side::Left);                   // add 5 pixels margin
-
-    root()->addWidget(Wt::cpp14::make_unique<Wt::WBreak>());    // insert a line break
-    greeting_ = root()->addWidget(Wt::cpp14::make_unique<Wt::WText>()); // empty text
-
-    /*
-     * Connect signals with slots
-     *
-     * - simple Wt-way: specify object and method
-     */
-    button->clicked().connect(this, &HelloApplication::greet);
-
-    /*
-     * - using an arbitrary function object, e.g. useful to bind
-     *   values with std::bind() to the resulting method call
-     */
-    nameEdit_->enterPressed().connect(std::bind(&HelloApplication::greet, this));
-
-    /*
-     * - using a lambda:
-     */
-    button->clicked().connect([=]() {
-        std::cerr << "Hello there, " << nameEdit_->text() << std::endl;
-    });
+    root()->addWidget(helper::get_unit_frame(*unit.get()));
 }
-
-void HelloApplication::greet() {
-    /*
-     * Update the text, using text input into the nameEdit_ field.
-     */
-    greeting_->setText("Hello there, " + nameEdit_->text());
-}
-
