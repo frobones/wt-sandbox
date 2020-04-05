@@ -14,9 +14,9 @@ int main(int argc, char **argv)
      * support. The function should return a newly instantiated application
      * object.
      */
+    database db;
+    db.run();
     return Wt::WRun(argc, argv,[](const Wt::WEnvironment &env) {
-        database db;
-        db.run();
 
         /*
          * You could read information from the environment to decide whether

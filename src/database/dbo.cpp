@@ -12,33 +12,11 @@
 #include <string>
 
 #include "dbo.hpp"
+#include "unit.hpp"
 
 /*****
  * Dbo tutorial section 2. Mapping a single class
  *****/
-
-enum class Role {
-    Visitor = 0,
-    Admin = 1,
-    Alien = 42
-};
-
-class User {
-public:
-    std::string name;
-    std::string password;
-    Role        role;
-    int         karma;
-
-    template<class Action>
-    void persist(Action& a)
-    {
-        dbo::field(a, name,     "name");
-        dbo::field(a, password, "password");
-        dbo::field(a, role,     "role");
-        dbo::field(a, karma,    "karma");
-    }
-};
 
 database::database() {
     /*****
@@ -55,7 +33,7 @@ database::database() {
     //sqlite2->setProperty("show-queries", "true");
     session.setConnection(std::move(sqlite3));
 
-    session.mapClass<User>("user");
+    session.mapClass<Unit>("unit");
 
     /*
      * Try to create the schema (will fail if already exists).
@@ -67,13 +45,18 @@ void database::run() {
     {
         dbo::Transaction transaction(session);
 
-        std::unique_ptr<User> user{new User()};
-        user->name = "Joe";
-        user->password = "Secret";
-        user->role = Role::Visitor;
-        user->karma = 13;
+        std::unique_ptr<Unit> unit{new Unit()};
+        unit->name_ = "Mont Leonis";
+        unit->faction_ = Faction::LEONIS;
+        unit->is_limited_ = false;
+        unit->rarity_ = Rarity::MR;
+        unit->element_ = Element::EARTH;
+        unit->job_1_ = Job::LORD;
+        unit->job_2_ = Job::PALADIN;
+        unit->job_3_ = Job::KNIGHT;
+        unit->image_uri = "";
 
-        dbo::ptr<User> userPtr = session.add(std::move(user));
+        dbo::ptr<Unit> unit_ptr = session.add(std::move(unit));
     }
 
     /*****
@@ -83,31 +66,31 @@ void database::run() {
     {
         dbo::Transaction transaction(session);
 
-        dbo::ptr<User> joe = session.find<User>().where("name = ?").bind("Joe");
+        dbo::ptr<Unit> unit = session.find<Unit>().where("name = ?").bind("Mont Leonis");
 
-        std::cerr << "Joe has karma: " << joe->karma << std::endl;
+        fprintf(stderr, "%s element is: %d\n", unit->name_.c_str(), static_cast<int>(unit->element_));
 
-        dbo::ptr<User> joe2 = session.query< dbo::ptr<User> >
-                              ("select u from user u").where("name = ?").bind("Joe");
+        dbo::ptr<Unit> unit2 = session.query< dbo::ptr<Unit> >
+                              ("select u from unit u").where("name = ?").bind("Mont Leonis");
 
-        int count = session.query<int>("select count(1) from user")
-                .where("name = ?").bind("Joe");
+        int count = session.query<int>("select count(1) from unit")
+                .where("name = ?").bind("Mont Leonis");
     }
 
     {
         dbo::Transaction transaction(session);
 
-        typedef dbo::collection< dbo::ptr<User> > Users;
+        typedef dbo::collection< dbo::ptr<Unit> > Units;
 
-        Users users = session.find<User>();
+        Units units = session.find<Unit>();
 
-        std::cerr << "We have " << users.size() << " users:" << std::endl;
+        fprintf(stderr, "We have %d users\n", static_cast<int>(units.size()));
 
-        for (const dbo::ptr<User> &user : users)
-            std::cerr << " user " << user->name
-                      << " with karma of " << user->karma << std::endl;
+        for (const dbo::ptr<Unit> &unit : units)
+            fprintf(stderr, "Unit %s is element %d\n", unit->name_.c_str(), static_cast<int>(unit->element_));
     }
 
+#if 0
     /*****
      * Dbo tutorial section 5. Updating objects
      *****/
@@ -135,4 +118,5 @@ void database::run() {
         silly.modify()->name = "Silly";
         silly.remove();
     }
+#endif
 }
