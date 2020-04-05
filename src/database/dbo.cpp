@@ -9,11 +9,9 @@
  * http://www.webtoolkit.eu/wt/doc/tutorial/dbo/tutorial.html
  *****/
 
-#include <Wt/Dbo/Dbo.h>
-#include <Wt/Dbo/backend/Sqlite3.h>
 #include <string>
 
-namespace dbo = Wt::Dbo;
+#include "dbo.hpp"
 
 /*****
  * Dbo tutorial section 2. Mapping a single class
@@ -42,21 +40,19 @@ public:
     }
 };
 
-void run()
-{
+database::database() {
     /*****
-     * Dbo tutorial section 3. A first session
+     * Dbo tutorial section 2. A first session
      *****/
 
     /*
      * Setup a session, would typically be done once at application startup.
      *
-     * For testing, we'll be using Sqlite3's special :memory: database. You
+     * For testing, we'll be using Sqlite2's special :memory: database. You
      * can replace this with an actual filename for actual persistence.
      */
     std::unique_ptr<dbo::backend::Sqlite3> sqlite3(new dbo::backend::Sqlite3(":memory:"));
-    //sqlite3->setProperty("show-queries", "true");
-    dbo::Session session;
+    //sqlite2->setProperty("show-queries", "true");
     session.setConnection(std::move(sqlite3));
 
     session.mapClass<User>("user");
@@ -65,7 +61,9 @@ void run()
      * Try to create the schema (will fail if already exists).
      */
     session.createTables();
+}
 
+void database::run() {
     {
         dbo::Transaction transaction(session);
 
@@ -139,9 +137,3 @@ void run()
     }
 
 }
-/*
-int main(int argc, char **argv)
-{
-    run();
-}
- */

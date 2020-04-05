@@ -7,9 +7,10 @@ include_directories(
 )
 
 add_executable(wt-tutorial
-        dbo.cpp
-        gui.cpp
-)
+        src/database/dbo.cpp
+        src/frontend/gui.cpp
+        src/database/dbo.hpp
+        src/main.cpp src/frontend/gui.hpp)
 
 target_link_libraries(wt-tutorial
     wt
